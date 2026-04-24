@@ -2,10 +2,14 @@ package com.carincho.course.springcloud.kafka.command.services;
 
 import com.carincho.course.springcloud.kafka.command.models.dto.ProductDto;
 
+import java.util.List;
+
 public interface ProductService {
 
-    ProductDto create(ProductDto productDto);
-    /*ProductDto update(ProductDto productDto);
+    List<ProductDto> findAll();
     ProductDto findById(Long id);
-    ProductDto findByName(String name);*/
+    ProductDto create(ProductDto productDto);
+    ProductDto update(Long id, ProductDto productDto);
+    boolean delete(Long id);
+
 }
