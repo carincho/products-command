@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -27,16 +28,18 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductDto update(Long id, ProductDto productDto) {
 
-        Product entity = productRepository.findById(id).orElse(null);
+        Optional<Product> entityOpt = productRepository.findById(id);
 
-        if(entity == null){
-            return null;
+        if(entityOpt.isPresent()){
+            Product entity = entityOpt.orElse(null);
+            entity.setName(productDto.name());
+            entity.setPrice(productDto.price());
+            return Mappers.toDto(productRepository.save(entity));
+
         }
 
-        entity.setName(productDto.name());
-        entity.setPrice(productDto.price());
+        return null;
 
-        return Mappers.toDto(productRepository.save(entity));
     }
 
     @Override
