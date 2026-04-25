@@ -59,26 +59,26 @@ public class ProductCommandConsumer {
 
                         logger.error("Create empty body");
                         yield  new Reply<>(ReplyStatus.ERROR, "CREATE EMPTY BODY", null);
+                    } else {
+
+                        ProductDto productSave = service.create(cmd.body());
+
+                        logger.info("Create product name={}, price={}", productSave.name(), productSave.price());
+                        yield new Reply<>(ReplyStatus.SUCCESS, "CREATE PRODUCT", productSave);
                     }
-
-                   ProductDto productSave =  service.create(cmd.body());
-
-                    logger.info("Create product name={}, price={}", productSave.name(), productSave.price());
-                    yield  new Reply<>(ReplyStatus.SUCCESS, "CREATE PRODUCT", productSave);
-
                 }
                 case CommandType.READ -> {
 
                     if (cmd.id() == null) {
                         logger.warn("Id is required");
                         yield  new Reply<>(ReplyStatus.ERROR, "ID IS REQUIRED", null);
+                    } else {
+                        ProductDto dto = service.findById(cmd.id());
+                        logger.info("Read product by id");
+                        yield dto == null ?
+                                new Reply<>(ReplyStatus.ERROR, "PRODUCT NOT FOUND", null) :
+                                new Reply<>(ReplyStatus.SUCCESS, "READ PRODUCT", dto);
                     }
-                    ProductDto dto = service.findById(cmd.id());
-                    logger.info("Read product by id");
-                    yield dto == null ?
-                            new Reply<>(ReplyStatus.ERROR, "PRODUCT NOT FOUND", null):
-                            new Reply<>(ReplyStatus.SUCCESS, "READ PRODUCT", dto);
-
 
                 }
 
@@ -90,29 +90,29 @@ public class ProductCommandConsumer {
                     if(cmd.body() == null || cmd.id() == null) {
                         logger.warn("Id and body is required");
                         yield  new Reply<>(ReplyStatus.ERROR, "ID AND BODY IS REQUIRED", null);
-                    }
-                    ProductDto dto = service.update(cmd.id(), cmd.body());
-                    if(dto != null) {
-                        logger.info("Update product name={}, price={}", dto.name(), dto.price());
-                        yield  new Reply<>(ReplyStatus.SUCCESS, "UPDATE PRODUCT", dto);
                     } else {
-                        logger.info("Product not foound");
-                        yield   new Reply<>(ReplyStatus.ERROR, "Product not foound", null);
+                        ProductDto dto = service.update(cmd.id(), cmd.body());
+                        if (dto != null) {
+                            logger.info("Update product name={}, price={}", dto.name(), dto.price());
+                            yield new Reply<>(ReplyStatus.SUCCESS, "UPDATE PRODUCT", dto);
+                        } else {
+                            logger.info("Product not foound");
+                            yield new Reply<>(ReplyStatus.ERROR, "Product not foound", null);
+                        }
                     }
-
                 }
                 case CommandType.DELETE -> {
 
                     if(cmd.id() == null) {
                         logger.warn("Id is required");
                         yield  new Reply<>(ReplyStatus.ERROR, "ID IS REQUIRED", null);
+                    } else {
+
+                        boolean result = service.delete(cmd.id());
+                        logger.info("Delete product");
+                        yield result ? new Reply<>(ReplyStatus.SUCCESS, "DELETE PRODUCT", "Deleted") :
+                                new Reply<>(ReplyStatus.ERROR, "PRODUCT NOT FOUND", null);
                     }
-
-                    boolean result = service.delete(cmd.id());
-                    logger.info("Delete product");
-                    yield result ? new Reply<>(ReplyStatus.SUCCESS, "DELETE PRODUCT", "Deleted"):
-                    new Reply<>(ReplyStatus.ERROR, "PRODUCT NOT FOUND", null);
-
 
                 }
 
